@@ -21,6 +21,7 @@ buzzer = PWM(Pin(7))
 round_no = 0
 active_led = 0
 player_selection = 0
+player_name = ""
 
 # Buzzer sound functions
 def buzzer_start_game():
@@ -114,6 +115,9 @@ def game_win():
     print("You have won the game champ!")
     buzzer_win()
     game_restart()
+    file = open("scoreboard.txt", "w")
+    file.write(f"{player_name} won the game!")
+    file.close()
 
 def game_restart():
     global round_no
