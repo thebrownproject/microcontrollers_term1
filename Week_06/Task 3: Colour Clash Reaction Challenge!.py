@@ -115,7 +115,7 @@ def game_win():
     buzzer_win()
     game_restart()
     file = open("scoreboard.txt", "a")
-    file.write(f"{player_name} scored {round_no + 1}")
+    file.write(f"{player_name} {round_no + 1}\n")
     file.close()
 
 def game_restart():
@@ -131,6 +131,22 @@ def game_restart():
     else:
         print("Not a valid input, try again!")
         game_restart()
+
+def show_leaderboard():
+    try:
+        with open("scoreboard.txt", "r") as file:
+            lines = file.readlines()
+            scores = []
+            for line in lines:
+                parts = line.strip().split()
+                if len[parts] == 2 and parts[1].isdigit():
+                    name = parts[0]
+                    score = int(parts[1])
+                    scores.append((name, score))
+
+    except FileNotFoundError:
+        print("No leaderboard data found!")
         
 # Game entry point
 game_start()
+
