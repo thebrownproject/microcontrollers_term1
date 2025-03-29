@@ -2,7 +2,6 @@
 from machine import Pin, PWM, ADC
 import time
 import random
-import os
 
 # Hardware setup
 leds = [
@@ -139,10 +138,16 @@ def show_leaderboard():
             scores = []
             for line in lines:
                 parts = line.strip().split()
-                if len[parts] == 2 and parts[1].isdigit():
+                if len(parts) == 2 and parts[1].isdigit():
                     name = parts[0]
                     score = int(parts[1])
                     scores.append((name, score))
+            
+            top_scores = sorted(scores, key=lambda x: x[1], reverse=True)[:5]
+
+            print("\n🏆 TOP 5 SCORES 🏆")
+            for i, (name, score) in enumerate(top_scores, 1):
+                print(f"{i}. {name} - {score}")
 
     except FileNotFoundError:
         print("No leaderboard data found!")
