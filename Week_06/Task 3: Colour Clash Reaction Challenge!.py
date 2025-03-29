@@ -69,7 +69,6 @@ def game_start():
     with open("scoreboard.txt", "r") as file:
         content = file.read()
         print(content)
-        file.close()
     player_name = input("Enter your gamer tag: ")
     buzzer_next_round()
     light_flash()
@@ -115,8 +114,8 @@ def game_win():
     print("You have won the game champ!")
     buzzer_win()
     game_restart()
-    file = open("scoreboard.txt", "w")
-    file.write(f"{player_name} won the game!")
+    file = open("scoreboard.txt", "a")
+    file.write(f"{player_name} scored {round_no + 1}")
     file.close()
 
 def game_restart():
