@@ -65,13 +65,18 @@ def game_start():
     global player_name
     print("Welcome to Colour Clash Reaction Challenge!")
     buzzer_start_game()
-    with open("scoreboard.txt", "r") as file:
-        content = file.read()
-        print(content)
     player_name = input("Enter your gamer tag: ")
-    buzzer_next_round()
-    light_flash()
-# show current 5 top scores
+    
+    while True:
+        buzzer_next_round()
+        light_flash()
+        user_input = input("Do you want to play again? (type yes): ")
+        if user_input == "yes":
+            global round_no
+            round_no = 0
+        else:
+            print("Thanks for playing!")
+            break
 
 # randon rgb shown
 def light_flash():
@@ -97,7 +102,7 @@ def check_win():
     global round_no, active_led, player_selection
     if active_led == player_selection:
         round_no += 1
-        if round_no == 2:
+        if round_no == 5:
             game_win()
             return
         print(f"Correct! Lets move to round {round_no + 1}")
@@ -107,29 +112,14 @@ def check_win():
     else:
         print("Wrong! Game over!")
         buzzer_lose()
-        game_restart()
 
 def game_win():
     print("You have won the game champ!")
     buzzer_win()
-    game_restart()
-    file = open("scoreboard.txt", "a")
-    file.write(f"{player_name} {round_no + 1}\n")
-    file.close()
-
-def game_restart():
-    global round_no
-    user_input = input("Do you want to play again? (yes or no): ")
-    if user_input == "yes":
-        round_no = 0
-        buzzer_start_game()
-        light_flash()
-    elif user_input == "no":
-        print("Thanks for playing, have a good one!")
-        return
-    else:
-        print("Not a valid input, try again!")
-        game_restart()
+    with open("scoreboard.txt", "a") as file:
+        file.write(f"{player_name} {round_no}\n")
+        file.close()
+    show_leaderboard()
 
 def show_leaderboard():
     try:

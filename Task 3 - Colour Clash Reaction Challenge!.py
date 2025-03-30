@@ -58,8 +58,16 @@ def buzzer_win():
             time.sleep(times)
     
     buzzer.duty_u16(0)
-    
-#def buzzer_lose():
+
+def buzzer_lose():
+    buzzer.duty_u16(20000)
+    frequencies = [500, 400, 300, 200]
+    for freq in frequencies:
+        buzzer.freq(freq)
+        time.sleep(0.2)
+    buzzer.duty_u16(0)
+
+# randon rgb shown
 
 
 
@@ -73,39 +81,68 @@ def light_flash():
     time.sleep(1)
     leds[random_index].off()
     active_led = random_index
-    player_turn()
+    return player_turn() # Return the status from player_turn
 
 
 def player_turn():
     global player_selection
+    print("Player turn: Press the button matching the LED!")
     while True:
         for i in range(len(buttons)):
             if buttons[i].value() == 0:
-                print(f"Button {i} pressed!")
-                player_selection = i
-                check_win()
-                return
+                # Basic debounce
+                time.sleep(0.1) 
+                if buttons[i].value() == 0: 
+                    print(f"Button {i} pressed!")
+                    player_selection = i
+                    return check_win() # Return the status from check_win
+        time.sleep(0.01) # Small delay to prevent busy-waiting
 
 def check_win():
     global round_no, active_led, player_selection
     if active_led == player_selection:
         round_no += 1
-        if round_no == 3:
-            print("You have won the game champ!")
+        if round_no >= 3: # Win condition (e.g., 3 rounds)
+            print(f"Correct! Round {round_no} complete.")
+            print("YOU WIN! 🎉")
             buzzer_win()
-            return
-        print(f"Correct! Lets move to round {round_no}")
-        buzzer_next_round()
-        time.sleep(.5)
-        light_flash()
+            return 'win' # Signal win
+        else:
+            print(f"Correct! Round {round_no} complete. Next round!")
+            buzzer_next_round()
+            time.sleep(0.5)
+            return 'continue' # Signal to continue game
     else:
-        print("Game over!")
+        print(f"Incorrect! The active LED was {active_led}, you pressed {player_selection}.")
+        print("GAME OVER! 😭")
+        buzzer_lose()
+        return 'lose' # Signal loss
 
-buzzer_start_game()
-light_flash()
+def game_loop():
+    global round_no
+    round_no = 0 # Reset round number for new game
+    print("\n--- NEW GAME ---")
+    buzzer_start_game()
+    time.sleep(1) # Pause before first flash
 
+    while True:
+        print(f"\n--- Round {round_no + 1} ---")
+        status = light_flash() # This now returns 'continue', 'win', or 'lose'
+        
+        if status == 'continue':
+            # The check_win function already handled the 'next round' sound and message
+            continue 
+        elif status == 'win':
+            # Win message and sound handled in check_win
+            time.sleep(2) # Pause after win
+            break # Exit the inner loop to restart game
+        elif status == 'lose':
+            # Lose message and sound handled in check_win
+            time.sleep(2) # Pause after loss
+            break # Exit the inner loop to restart game
 
-# if button.value() == 0 and not toggle:
-#        toggle = True
-#        print("🚸 Pedestrian button pressed!")
-#        time.sleep(0.2)  # Prevents button bouncing
+# Main execution - keeps restarting the game
+while True:
+    game_loop()
+    print("Restarting game in 3 seconds...")
+    time.sleep(3)
