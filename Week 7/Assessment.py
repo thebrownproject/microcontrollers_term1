@@ -152,7 +152,6 @@ def player_turn():
                 
                 time.sleep(0.1)
                 break
-    
     return True
 
 def show_leaderboard():
