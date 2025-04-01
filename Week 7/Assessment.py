@@ -66,24 +66,29 @@ def melody_game_over():
 
 # game logic / game state
 def game_start():
-    global player_name
+    global player_name, round_no
     print("Welcome to Memory Challenge!")
     melody_game_start()
     player_name = input("Please enter your player name: ")
     time.sleep(.5)
     print(f"Okay {player_name}, let's start the game!")
-
+    
     while True:
         melody_level_up()
         light_flash()
-        print(f"Well done {player_name}, you have scored {round_no + 1}!")
-        user_input = input("Do you want to play again? (type yes): ")
-        if user_input.lower() == "yes":
-            global round_no
-            round_no = 0
-        else:
-            print("Thanks for playing!")
+        player_turn()
+        if not check_win():
             break
+    
+    print(f"Well done {player_name}, you have scored {round_no + 1}!")
+    user_input = input("Do you want to play again? (type yes): ")
+    if user_input.lower() == "yes":
+        round_no = 0
+        active_leds.clear()
+        player_selection.clear()
+        game_start()
+    else:
+        print("Thanks for playing!")
 
 # Function to flash LEDs in a sequence
 def light_flash():
@@ -99,16 +104,42 @@ def light_flash():
 # Function to check button presses
 def player_turn():
     global player_selection
-    while True:
+    player_selection = []
+    expected_presses = len(active_leds)
+
+    while len(player_selection) < expected_presses:
         for i in range(len(buttons)):
-            if buttons[i].value() == 0:
+            if buttons[i].value() == 0: # Button pressed
                 print(f"Button {i} pressed!")
                 player_selection.append(i)
-                check_win()
-                return
+                
+                # Visual feedback
+                leds[i].on()
+                time.sleep(0.2)
+                leds[i].off()
 
-# Function to check if the player has won
+                while buttons[i].value() == 0:
+                    time.sleep(0.1)
+                
+                time.sleep(0.1)
+                break
+    return
+                    
+
+
+
+# Function to check if the player has won the round
 def check_win():
+    global round_no, active_leds, player_selection
+    if active_leds == player_selection:
+        round_no += 1
+        print(f"Correct! Let's move to round {round_no + 1}")
+        time.sleep(.5)
+        return True
+    else:
+        print("Wrong! Game over!")
+        melody_game_over()
+        return False
 
 # Game entry point
 game_start()
