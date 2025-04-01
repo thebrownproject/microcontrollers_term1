@@ -86,5 +86,6 @@ def game_start():
             melody_game_over()
             break
 
+
 # Game entry point
 game_start()
