@@ -83,9 +83,32 @@ def game_start():
             round_no = 0
         else:
             print("Thanks for playing!")
-            melody_game_over()
             break
 
+# Function to flash LEDs in a sequence
+def light_flash():
+    global round_no
+    random_index = random.randint(0, 3)
+    active_leds.append(random_index)
+    for led in active_leds:
+        leds[led].on()
+        time.sleep(0.5)
+        leds[led].off()
+        time.sleep(0.5)
+
+# Function to check button presses
+def player_turn():
+    global player_selection
+    while True:
+        for i in range(len(buttons)):
+            if buttons[i].value() == 0:
+                print(f"Button {i} pressed!")
+                player_selection.append(i)
+                check_win()
+                return
+
+# Function to check if the player has won
+def check_win():
 
 # Game entry point
 game_start()
