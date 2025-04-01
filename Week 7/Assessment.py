@@ -26,12 +26,19 @@ player_selection = []
 player_name = ""
 
 # Buzzer sound functions
+game_tones = [196, 261, 329, 784]
+
+def game_tone(tone):
+    buzzer.duty_u16(20000)  # Set duty cycle for sound output
+    buzzer.freq(tone)  # Set frequency for buzzer
+    time.sleep(0.2)  # Duration of the tone
+    buzzer.duty_u16(0)  # Turn off buzzer
+
 def play_tone(frequency, duration):
     buzzer.freq(frequency)  # Set frequency for buzzer
     time.sleep(duration / 1000)  # Convert milliseconds to seconds
 
 def melody_game_start():
-    buzzer.duty_u16(20000)  # Set duty cycle for sound output
     notes = [
         (392, 200),  # G
         (494, 200),  # B
@@ -39,9 +46,10 @@ def melody_game_start():
         (784, 400)   # G (higher octave)
     ]
     for tone, duration in notes:
+        buzzer.duty_u16(20000)  # Set duty cycle for sound output
         play_tone(tone, duration)
+        buzzer.duty_u16(0)  # Turn off buzzer
         time.sleep(0.05)  # Short pause between notes
-    buzzer.duty_u16(0)  # Turn off buzzer
 
 def melody_level_up():
     buzzer.duty_u16(20000)  # Set duty cycle for sound output
@@ -67,14 +75,16 @@ def melody_game_over():
 # game logic / game state
 def game_start():
     global player_name, round_no
-    print("Welcome to Memory Challenge!")
     melody_game_start()
+    print("Welcome to Memory Challenge!")
     player_name = input("Please enter your player name: ")
     time.sleep(.5)
     print(f"Okay {player_name}, let's start the game!")
+    time.sleep(1)  # Delay after game start message
     
     while True:
         melody_level_up()
+        time.sleep(1)  # Delay AFTER the level-up tune and BEFORE the buttons light up
         light_flash()
         player_turn()
         if not check_win():
@@ -97,6 +107,7 @@ def light_flash():
     active_leds.append(random_index)
     for led in active_leds:
         leds[led].on()
+        game_tone(game_tones[led])
         time.sleep(0.5)
         leds[led].off()
         time.sleep(0.5)
@@ -112,6 +123,9 @@ def player_turn():
             if buttons[i].value() == 0: # Button pressed
                 print(f"Button {i} pressed!")
                 player_selection.append(i)
+
+                # Play sound for the button pressed
+                game_tone(game_tones[i])
                 
                 # Visual feedback
                 leds[i].on()
@@ -124,9 +138,6 @@ def player_turn():
                 time.sleep(0.1)
                 break
     return
-                    
-
-
 
 # Function to check if the player has won the round
 def check_win():
@@ -140,6 +151,6 @@ def check_win():
         print("Wrong! Game over!")
         melody_game_over()
         return False
-
+    
 # Game entry point
 game_start()
